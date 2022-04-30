@@ -7,10 +7,10 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
@@ -111,23 +111,24 @@ public class GaugeChart extends JComponent {
     public void paint(Graphics grphcs) {
         Graphics2D g2 = (Graphics2D) grphcs;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         float spaceBot = 0.15f; //  space bot 15%
-        int width = getWidth();
-        int height = getHeight();
-        height += (int) (height * spaceBot);
-        int size = Math.min(width, height) - (gaugeSize + 5);   //  5 is margin
-        int centerSize = 20;
-        int x = (width - size) / 2;
-        int y = (height - size) / 2;
-        int centerX = width / 2;
-        int centerY = height / 2;
-        int angleStart = -35;
+        float width = getWidth();
+        float height = getHeight();
+        height += (height * spaceBot);
+        float size = Math.min(width, height) - (gaugeSize + 5);   //  5 is margin
+        float centerSize = 20;
+        float x = (width - size) / 2;
+        float y = (height - size) / 2;
+        float centerX = width / 2;
+        float centerY = height / 2;
+        float angleStart = -35;
         g2.setColor(new Color(240, 240, 240));
-        g2.fillOval(centerX - centerSize / 2, centerY - centerSize / 2, centerSize, centerSize);
+        g2.fill(new Ellipse2D.Float(centerX - centerSize / 2, centerY - centerSize / 2, centerSize, centerSize));
         g2.setStroke(new BasicStroke(gaugeSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
         Shape s = new Arc2D.Double(x, y, size, size, angleStart, 250, Arc2D.OPEN);
         g2.draw(s);
-        double angle = getAngleOfValues();
+        float angle = getAngleOfValues();
         if (angle > 0) {
             s = new Arc2D.Double(x, y, size, size, angleStart + 250 - angle, angle, Arc2D.OPEN);
             GradientPaint gra = new GradientPaint(0, 0, color1, width, 0, color2);
@@ -136,50 +137,50 @@ public class GaugeChart extends JComponent {
         }
         g2.setStroke(new BasicStroke(1f));
         //  Create line
-        double len = 20;
-        double space = 250 / len;
-        double start = angleStart + 7;
-        double angleSize = (size / 2) - gaugeSize;
+        float len = 20;
+        float space = 250 / len;
+        float start = angleStart + 7;
+        float angleSize = (size / 2f) - gaugeSize;
         g2.setColor(new Color(200, 200, 200));
         for (int i = 1; i <= len; i++) {
-            Point p = getLocation(start, angleSize);
-            g2.fillOval(centerX + p.x - 2, centerY - p.y - 2, 4, 4);
+            Loca p = getLocation(start, angleSize);
+            g2.fill(new Ellipse2D.Float(centerX + p.x - 2, centerY - p.y - 2, 4, 4));
             start += space;
         }
         //  Create pointer
-        double ang = angleStart + 250 - angle;
+        float ang = angleStart + 250 - angle;
         g2.setColor(color2);
         Path2D p = new Path2D.Double();
-        Point end = getLocation(ang, angleSize);
-        Point right = getLocation(ang - 90, 5);
-        Point left = getLocation(ang + 90, 5);
+        Loca end = getLocation(ang, angleSize);
+        Loca right = getLocation(ang - 90, 5);
+        Loca left = getLocation(ang + 90, 5);
         p.moveTo(centerX + left.x, centerY - left.y);
         p.lineTo(centerX + end.x, centerY - end.y);
         p.lineTo(centerX + right.x, centerY - right.y);
         g2.fill(p);
-        g2.fillOval(centerX - 5, centerY - 5, 10, 10);
+        g2.fill(new Ellipse2D.Float(centerX - 5, centerY - 5, 10, 10));
         g2.setColor(new Color(240, 240, 240));
-        g2.fillOval(centerX - 2, centerY - 2, 4, 4);
+        g2.fill(new Ellipse2D.Float(centerX - 2, centerY - 2, 4, 4));
         drawText(g2, centerX, centerY, angleSize);
         super.paint(grphcs);
     }
 
-    private void drawText(Graphics2D g2, int x, int y, double size) {
+    private void drawText(Graphics2D g2, float x, float y, float size) {
         g2.setColor(getForeground());
-        double max = maximum;
-        double v = getValueFixed();
-        double n = v / max * 100f;
+        float max = maximum;
+        float v = getValueFixed();
+        float n = v / max * 100f;
         String text = String.valueOf((int) n) + "%";
         FontMetrics ft = g2.getFontMetrics();
         Rectangle2D r2 = ft.getStringBounds(text, g2);
-        g2.drawString(text, (int) (x - r2.getWidth() / 2), (int) (y + size - r2.getHeight()));
+        g2.drawString(text, (float) (x - r2.getWidth() / 2f), (float) (y + size - r2.getHeight()));
     }
 
-    private double getAngleOfValues() {
-        double max = maximum;
-        double v = getValueFixed();
-        double n = v / max * 100f;
-        double angle = n * 250f / 100f;
+    private float getAngleOfValues() {
+        float max = maximum;
+        float v = getValueFixed();
+        float n = v / max * 100f;
+        float angle = n * 250f / 100f;
         return angle;
     }
 
@@ -187,10 +188,10 @@ public class GaugeChart extends JComponent {
         return value > maximum ? maximum : value;
     }
 
-    private Point getLocation(double angle, double size) {
+    private Loca getLocation(float angle, float size) {
         double x = Math.cos(Math.toRadians(angle)) * size;
         double y = Math.sin(Math.toRadians(angle)) * size;
-        return new Point((int) x, (int) y);
+        return new Loca((float) x, (float) y);
     }
 
     public void setValueWithAnimation(int value) {
@@ -202,5 +203,35 @@ public class GaugeChart extends JComponent {
             animator.stop();
         }
         animator.start();
+    }
+
+    private class Loca {
+
+        public float getX() {
+            return x;
+        }
+
+        public void setX(float x) {
+            this.x = x;
+        }
+
+        public float getY() {
+            return y;
+        }
+
+        public void setY(float y) {
+            this.y = y;
+        }
+
+        public Loca(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public Loca() {
+        }
+
+        private float x;
+        private float y;
     }
 }
